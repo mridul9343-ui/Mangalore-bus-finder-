@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123b5d">
+<title>Mangalore City Bus Finder</title>
+<style>
+:root{--navy:#123b5d;--blue:#1769aa;--sky:#eaf4fb;--ink:#172b3a;--muted:#617383;--line:#dbe5ec;--white:#fff;--green:#18794e}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:#f4f7fa;color:var(--ink);line-height:1.45}
+header{background:var(--navy);color:white;padding:18px 16px 24px} .wrap{max-width:920px;margin:auto}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:800;font-size:1.05rem;letter-spacing:.2px}.brand small{display:block;font-weight:500;font-size:.75rem;opacity:.8}
+button,.btn{border:0;border-radius:10px;padding:11px 14px;font:inherit;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;text-decoration:none;display:inline-block}
+button.secondary,.btn.secondary{background:#e8eef3;color:var(--navy)}button.danger{background:#a92c35}.hero{padding:28px 0 4px}.hero h1{font-size:clamp(1.7rem,6vw,2.6rem);line-height:1.1;margin:0 0 10px}.hero p{margin:0;color:#d7e6f2}
+main{padding:18px 14px 40px}.card{background:white;border:1px solid var(--line);border-radius:16px;padding:17px;margin:0 0 15px;box-shadow:0 4px 16px #102c4210}.card h2,.card h3{margin:0 0 12px}.grid{display:grid;grid-template-columns:1fr;gap:12px}@media(min-width:640px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+label{display:block;font-size:.87rem;font-weight:750;margin:0 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #cbd7e0;border-radius:10px;font:inherit;background:#fff;color:var(--ink)}textarea{min-height:75px;resize:vertical}.field{margin-bottom:12px}.actions{display:flex;gap:8px;flex-wrap:wrap}.results-head{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}.muted{color:var(--muted);font-size:.9rem}.notice{background:#fff7df;border:1px solid #f1dda0;color:#664d08;padding:12px;border-radius:12px;font-size:.9rem;margin-bottom:15px}.route{border:1px solid var(--line);border-radius:13px;padding:14px;margin-top:10px}.route-title{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}.badge{background:var(--sky);color:var(--navy);padding:5px 9px;border-radius:999px;font-weight:800;font-size:.82rem;white-space:nowrap}.stops{margin:12px 0;padding-left:20px}.stops li{padding:3px 0}.meta{display:flex;gap:8px;flex-wrap:wrap;color:var(--muted);font-size:.86rem}.empty{padding:22px;text-align:center;color:var(--muted);background:#f8fafc;border-radius:12px}.hidden{display:none!important}footer{text-align:center;color:var(--muted);padding:18px;font-size:.83rem}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tabs button.active{background:var(--navy)}.small{font-size:.8rem}.route-actions{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}.route-actions button{padding:8px 10px;font-size:.85rem}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <div class="top"><div class="brand">🚌 MANGALORE BUS FINDER<small>City bus routes at your fingertips</small></div><button class="secondary" id="adminToggle" type="button">Admin</button></div>
+  <div class="hero"><h1>Find your bus route.</h1><p>Search between places in Mangaluru and view route stops.</p></div>
+</div></header>
+<main class="wrap">
+  <div class="notice"><strong>Project demo:</strong> The included routes are sample data, not verified official bus services. Replace them with confirmed route and timing information before public use.</div>
+  <section id="searchSection" class="card">
+    <h2>Plan your journey</h2>
+    <form id="searchForm">
+      <div class="grid two">
+        <div class="field"><label for="from">From</label><input id="from" list="places" placeholder="e.g. State Bank" autocomplete="off" required></div>
+        <div class="field"><label for="to">To</label><input id="to" list="places" placeholder="e.g. Mangaladevi" autocomplete="off" required></div>
+      </div>
+      <datalist id="places"></datalist>
+      <div class="actions"><button type="submit">Search buses</button><button class="secondary" type="button" id="showAll">Show all routes</button><button class="secondary" type="button" id="swap">Swap places ⇅</button></div>
+    </form>
+  </section>
+  <section class="card">
+    <div class="results-head"><h2 id="resultsTitle">Available routes</h2><span id="routeCount" class="muted"></span></div>
+    <div id="results"></div>
+  </section>
+  <section id="adminSection" class="card hidden">
+    <h2>Route administration</h2>
+    <p class="muted">This starter version saves changes in this browser on this device. Use Export to back up routes. For shared multi-user administration, connect a hosted database in a later step.</p>
+    <div class="tabs"><button class="active" id="addTab">Add route</button><button class="secondary" id="dataTab">Import / export</button></div>
+    <div id="addPanel">
+      <form id="routeForm">
+        <input type="hidden" id="editId">
+        <div class="grid two">
+          <div class="field"><label for="number">Bus number / route code</label><input id="number" required placeholder="e.g. DEMO-01"></div>
+          <div class="field"><label for="name">Route name</label><input id="name" required placeholder="e.g. Central route"></div>
+        </div>
+        <div class="grid two">
+          <div class="field"><label for="start">Starting stop</label><input id="start" required placeholder="Starting stop"></div>
+          <div class="field"><label for="end">Destination stop</label><input id="end" required placeholder="Destination stop"></div>
+        </div>
+        <div class="field"><label for="stops">Stops in order (separate with commas)</label><textarea id="stops" required placeholder="Stop A, Stop B, Stop C"></textarea></div>
+        <div class="grid two">
+          <div class="field"><label for="timings">Timings (optional)</label><input id="timings" placeholder="e.g. Verify with operator"></div>
+          <div class="field"><label for="duration">Estimated journey (optional)</label><input id="duration" placeholder="e.g. 25 minutes"></div>
+        </div>
+        <div class="actions"><button type="submit" id="saveRoute">Save route</button><button class="secondary" type="button" id="cancelEdit">Clear form</button></div>
+      </form>
+      <h3 style="margin-top:20px">Manage existing routes</h3><div id="adminRoutes"></div>
+    </div>
+    <div id="dataPanel" class="hidden">
+      <div class="actions"><button id="exportBtn" type="button">Export routes JSON</button><button class="secondary" id="resetBtn" type="button">Restore demo data</button></div>
+      <div class="field" style="margin-top:14px"><label for="importFile">Import a previously exported JSON file</label><input type="file" id="importFile" accept=".json,application/json"></div>
+      <p class="muted small">Import replaces the current route list. Export first if you need a backup.</p>
+    </div>
+  </section>
+</main>
+<footer>Mangalore City Bus Finder · Student project starter · Verify routes before real-world use</footer>
+<script>
+const DEMO_ROUTES = [
+ {id:"demo1",number:"DEMO-01",name:"Sample central route",start:"State Bank",end:"Mangaladevi",stops:["State Bank","Hampankatta","Car Street","Mangaladevi"],timings:"Not verified — add confirmed timings",duration:"Sample only"},
+ {id:"demo2",number:"DEMO-02",name:"Sample northbound route",start:"State Bank",end:"Kottara",stops:["State Bank","Hampankatta","Lady Hill","Kottara"],timings:"Not verified — add confirmed timings",duration:"Sample only"},
+ {id:"demo3",number:"DEMO-03",name:"Sample transit connection",start:"Hampankatta",end:"Surathkal",stops:["Hampankatta","State Bank","Kuloor","Surathkal"],timings:"Not verified — add confirmed timings",duration:"Sample only"}
+];
+const STORE="mangaloreBusFinderRoutesV1";
+let routes=loadRoutes();
+function loadRoutes(){try{const x=JSON.parse(localStorage.getItem(STORE));return Array.isArray(x)?x:structuredClone(DEMO_ROUTES)}catch(e){return JSON.parse(JSON.stringify(DEMO_ROUTES))}}
+function saveRoutes(){localStorage.setItem(STORE,JSON.stringify(routes));refreshPlaces();renderRoutes(routes);renderAdminRoutes()}
+function norm(s){return String(s||"").trim().toLocaleLowerCase()}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function refreshPlaces(){const p=[...new Set(routes.flatMap(r=>[r.start,r.end,...r.stops]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));document.getElementById("places").innerHTML=p.map(x=>`<option value="${esc(x)}">`).join("")}
+function routeCard(r,admin=false){return `<article class="route"><div class="route-title"><div><strong>${esc(r.name)}</strong><div class="muted">Route ${esc(r.number)}</div></div><span class="badge">${esc(r.start)} → ${esc(r.end)}</span></div><ol class="stops">${(r.stops||[]).map(s=>`<li>${esc(s)}</li>`).join("")}</ol><div class="meta"><span>🕒 ${esc(r.timings||"Timing not provided")}</span>${r.duration?`<span>• ${esc(r.duration)}</span>`:""}</div>${admin?`<div class="route-actions"><button type="button" onclick="editRoute('${esc(r.id)}')">Edit</button><button type="button" class="danger" onclick="deleteRoute('${esc(r.id)}')">Delete</button></div>`:""}</article>`}
+function renderRoutes(list,title="Available routes"){document.getElementById("resultsTitle").textContent=title;document.getElementById("routeCount").textContent=`${list.length} route${list.length===1?"":"s"}`;document.getElementById("results").innerHTML=list.length?list.map(r=>routeCard(r)).join(""):`<div class="empty">No matching routes found. Try another stop or show all routes.</div>`}
+function searchRoutes(from,to){const f=norm(from),t=norm(to);if(!f||!t){renderRoutes(routes,"Available routes");return}if(f===t){renderRoutes([],"Search results");return}
+ const found=routes.filter(r=>{const ss=(r.stops||[]).map(norm);const fi=ss.indexOf(f),ti=ss.indexOf(t);return fi!==-1&&ti!==-1&&fi<ti});
+ renderRoutes(found,`Routes: ${from} → ${to}`);
+ if(!found.length)document.getElementById("results").innerHTML=`<div class="empty">No direct route found for these exact stops. Try a different spelling or add verified stop names in Admin.</div>`;
+}
+function renderAdminRoutes(){const el=document.getElementById("adminRoutes");el.innerHTML=routes.length?routes.map(r=>routeCard(r,true)).join(""):`<div class="empty">No routes saved yet.</div>`}
+document.getElementById("searchForm").addEventListener("submit",e=>{e.preventDefault();searchRoutes(document.getElementById("from").value,document.getElementById("to").value)});
+document.getElementById("showAll").onclick=()=>renderRoutes(routes);
+document.getElementById("swap").onclick=()=>{const f=document.getElementById("from"),t=document.getElementById("to"),v=f.value;f.value=t.value;t.value=v};
+document.getElementById("adminToggle").onclick=()=>{const a=document.getElementById("adminSection");a.classList.toggle("hidden");if(!a.classList.contains("hidden"))a.scrollIntoView({behavior:"smooth"});};
+document.getElementById("addTab").onclick=()=>{document.getElementById("addPanel").classList.remove("hidden");document.getElementById("dataPanel").classList.add("hidden");document.getElementById("addTab").classList.add("active");document.getElementById("dataTab").classList.remove("active");document.getElementById("dataTab").classList.add("secondary")};
+document.getElementById("dataTab").onclick=()=>{document.getElementById("dataPanel").classList.remove("hidden");document.getElementById("addPanel").classList.add("hidden");document.getElementById("dataTab").classList.add("active");document.getElementById("addTab").classList.remove("active")};
+document.getElementById("routeForm").addEventListener("submit",e=>{e.preventDefault();const id=document.getElementById("editId").value||("route-"+Date.now());const stops=document.getElementById("stops").value.split(",").map(s=>s.trim()).filter(Boolean);const start=document.getElementById("start").value.trim(),end=document.getElementById("end").value.trim();if(stops.length<2){alert("Enter at least two stops.");return}if(norm(stops[0])!==norm(start)||norm(stops[stops.length-1])!==norm(end)){if(!confirm("The first/last stops do not match the start/destination fields. Save anyway?"))return}
+ const r={id,number:document.getElementById("number").value.trim(),name:document.getElementById("name").value.trim(),start,end,stops,timings:document.getElementById("timings").value.trim(),duration:document.getElementById("duration").value.trim()};const ix=routes.findIndex(x=>x.id===id);if(ix>=0)routes[ix]=r;else routes.push(r);saveRoutes();e.target.reset();document.getElementById("editId").value="";document.getElementById("saveRoute").textContent="Save route";alert("Route saved on this device.")});
+window.editRoute=id=>{const r=routes.find(x=>x.id===id);if(!r)return;for(const [k,v] of Object.entries({editId:r.id,number:r.number,name:r.name,start:r.start,end:r.end,stops:r.stops.join(", "),timings:r.timings||"",duration:r.duration||""}))document.getElementById(k).value=v;document.getElementById("saveRoute").textContent="Update route";document.getElementById("addPanel").classList.remove("hidden");document.getElementById("dataPanel").classList.add("hidden");document.getElementById("routeForm").scrollIntoView({behavior:"smooth"})};
+window.deleteRoute=id=>{const r=routes.find(x=>x.id===id);if(r&&confirm(`Delete route ${r.number}?`)){routes=routes.filter(x=>x.id!==id);saveRoutes()}};
+document.getElementById("cancelEdit").onclick=()=>{document.getElementById("routeForm").reset();document.getElementById("editId").value="";document.getElementById("saveRoute").textContent="Save route"};
+document.getElementById("exportBtn").onclick=()=>{const blob=new Blob([JSON.stringify(routes,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="mangalore-bus-routes.json";a.click();URL.revokeObjectURL(url)};
+document.getElementById("importFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!Array.isArray(data)||!data.every(r=>r.number&&r.start&&r.end&&Array.isArray(r.stops)))throw Error("Invalid route format");routes=data.map((r,i)=>({...r,id:r.id||"import-"+Date.now()+"-"+i}));saveRoutes();alert("Routes imported successfully.")}catch(err){alert("Could not import file. Please select a valid exported routes JSON file.")}e.target.value=""});
+document.getElementById("resetBtn").onclick=()=>{if(confirm("Replace saved routes with demo routes? Export a backup first if needed.")){routes=JSON.parse(JSON.stringify(DEMO_ROUTES));saveRoutes()}};
+refreshPlaces();renderRoutes(routes);renderAdminRoutes();
+</script>
+</body>
+</html>
